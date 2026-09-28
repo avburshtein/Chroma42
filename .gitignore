@@ -1,0 +1,54 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+next-env.d.ts
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# env files (никогда не коммитим реальные ключи)
+.env
+.env.*
+!.env.example
+!.dev.vars.example
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+
+# Cloudflare / wrangler
+.wrangler
+.dev.vars*
+.open-next
+
+# editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# локальный шум: экспорты чатов
+Docs/chat-export-*.json

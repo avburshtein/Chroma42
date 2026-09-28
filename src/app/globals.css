@@ -1,0 +1,716 @@
+@import "tailwindcss";
+
+/* Справочные материалы (Figma Make export) не должны сканироваться:
+ * кандидаты вида font-['Inter:Medium'] из Docs генерируют невалидный
+ * CSS (font-family: \\'Inter:Medium\\') — webpack-сборка падает
+ * («Missed semicolon»), а в dev браузер теряет кусок стилей после
+ * битого правила (решение (17) Portfolio_Case_spec_final §14). */
+@source not "../../Docs";
+
+/* 1. РЕГИСТРАЦИЯ ПЕРЕМЕННЫХ В СИСТЕМЕ TAILWIND v4 */
+@theme {
+  /* Шрифты */
+  --font-display: var(--font-poppins), sans-serif;
+  --font-body: var(--font-inter), sans-serif;
+
+  /* Радиусы (rounded-*) */
+  --radius-none: 0px;
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-base: 12px;
+  --radius-lg: 14px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-3xl: 24px;
+  --radius-4xl: 28px;
+  --radius-5xl: 48px;
+  --radius-full: 9999px;
+
+  /* Размеры контейнеров (max-w-*) */
+  --max-width-container-content: 1280px; /* 1:1 с Make (решение (24)): Container max-w-[1280px] */
+  --max-width-container-form: 850px;
+  --max-width-container-narrow: 768px;
+  --max-width-container-page: 1440px;
+  --max-width-page: 1440px;
+
+  /* Семантические цвета (bg-*, text-*, border-*) */
+  --color-primary: var(--md-sys-color-primary);
+  --color-on-primary: var(--md-sys-color-on-primary);
+  --color-primary-container: var(--md-sys-color-primary-container);
+  --color-on-primary-container: var(--md-sys-color-on-primary-container);
+
+  --color-secondary: var(--md-sys-color-secondary);
+  --color-on-secondary: var(--md-sys-color-on-secondary);
+  --color-secondary-container: var(--md-sys-color-secondary-container);
+  --color-on-secondary-container: var(--md-sys-color-on-secondary-container);
+
+  --color-tertiary: var(--md-sys-color-tertiary);
+  --color-on-tertiary: var(--md-sys-color-on-tertiary);
+  --color-tertiary-container: var(--md-sys-color-tertiary-container);
+  --color-on-tertiary-container: var(--md-sys-color-on-tertiary-container);
+
+  --color-error: var(--md-sys-color-error);
+  --color-on-error: var(--md-sys-color-on-error);
+  --color-error-container: var(--md-sys-color-error-container);
+  --color-on-error-container: var(--md-sys-color-on-error-container);
+
+  --color-background: var(--md-sys-color-background);
+  --color-on-background: var(--md-sys-color-on-background);
+
+  --color-surface: var(--md-sys-color-surface);
+  --color-on-surface: var(--md-sys-color-on-surface);
+  --color-surface-variant: var(--md-sys-color-surface-variant);
+  --color-on-surface-variant: var(--md-sys-color-on-surface-variant);
+
+  --color-outline: var(--md-sys-color-outline);
+  --color-outline-variant: var(--md-sys-color-outline-variant);
+
+  /* Surface Container levels */
+  --color-surface-container-lowest: var(--md-sys-color-surface-container-lowest);
+  --color-surface-container-low: var(--md-sys-color-surface-container-low);
+  --color-surface-container: var(--md-sys-color-surface-container);
+  --color-surface-container-high: var(--md-sys-color-surface-container-high);
+  --color-surface-container-highest: var(--md-sys-color-surface-container-highest);
+
+  /* Surface Tint */
+  --color-surface-tint: var(--md-sys-color-surface-tint);
+
+  /* Shadow */
+  --shadow-card: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
+
+  /* Portfolio Card shadows — 3 переменные с разными значениями по mode */
+  --shadow-card-accent: rgba(177, 211, 196, 0.30);
+  /* green tint */
+  --shadow-card-glow: rgba(242, 242, 242, 0.86);
+  /* white lift */
+  --shadow-card-base: rgba(0, 0, 0, 0.05);
+  /* soft base */
+
+  /* Дополнительные акцентные цвета */
+  --color-lime-accent: var(--md-ext-lime-accent);
+  --color-on-lime-accent: var(--md-ext-on-lime-accent);
+  --color-lavender-light: var(--md-ext-lavender-light);
+  --color-lavender-purple: var(--md-ext-lavender-purple);
+  --color-green-accent: var(--md-ext-green-accent);
+
+  /* Типографика (text-*) */
+  --text-headline-lg: 48px;
+  --text-headline-lg--line-height: 56px;
+  --text-headline-lg--font-weight: 500;
+
+  --text-display-sm: 52px;
+  --text-display-sm--line-height: 60px;
+  --text-display-sm--font-weight: 500;
+
+  --text-headline-md: 34px;
+  --text-headline-md--line-height: 42px;
+  --text-headline-md--font-weight: 500;
+
+  --text-headline-sm: 26px;
+  --text-headline-sm--line-height: 34px;
+  --text-headline-sm--font-weight: 500;
+
+  --text-title-lg: 20px;
+  --text-title-lg--line-height: 28px;
+  --text-title-lg--font-weight: 500;
+
+  --text-title-md: 16px;
+  --text-title-md--line-height: 24px;
+  --text-title-md--font-weight: 500;
+  --text-title-md--letter-spacing: 0.15px;
+
+  --text-title-sm: 14px;
+  --text-title-sm--line-height: 20px;
+  --text-title-sm--font-weight: 500;
+
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 28px;
+  --text-body-lg--font-weight: 400;
+
+  --text-body-md: 16px;
+  --text-body-md--line-height: 24px;
+  --text-body-md--font-weight: 400;
+  --text-body-md--letter-spacing: 0.25px;
+
+  --text-body-sm: 14px;
+  --text-body-sm--line-height: 22px;
+  --text-body-sm--font-weight: 400;
+  --text-body-sm--letter-spacing: 0.4px;
+
+  --text-label-lg: 16px;
+  --text-label-lg--line-height: 24px;
+  --text-label-lg--font-weight: 600;
+
+  --text-label-md: 13px;
+  --text-label-md--line-height: 20px;
+  --text-label-md--font-weight: 500;
+  --text-label-md--letter-spacing: 0.5px;
+
+  --text-label-sm: 11px;
+  --text-label-sm--line-height: 16px;
+  --text-label-sm--font-weight: 600;
+  --text-label-sm--letter-spacing: 0.5px;
+
+  --text-label-overline: 10px;
+  --text-label-overline--line-height: 16px;
+  --text-label-overline--font-weight: 600;
+
+  --text-button: 16px;
+  --text-button--line-height: 24px;
+  --text-button--font-weight: 500;
+}
+
+/* 2. СЕМАНТИЧЕСКИЕ ЦВЕТОВЫЕ ТОКЕНЫ (LIGHT THEME BY DEFAULT) */
+:root {
+  color-scheme: light dark;
+
+  /* M3 Light Palette */
+  --md-sys-color-primary: #00543b;
+  --md-sys-color-surface-tint: #056c4d;
+  --md-sys-color-on-primary: #ffffff;
+  --md-sys-color-primary-container: #0b6e4f;
+  /* on-primary-container #98edc6 → #d9f9e7: запас контраста 4.55 → 5.56
+     (аудит 2026-09-18; из билдера M3 пара проходила впритык) */
+  --md-sys-color-on-primary-container: #d9f9e7;
+
+  --md-sys-color-secondary: #b12a33;
+  --md-sys-color-on-secondary: #ffffff;
+  --md-sys-color-secondary-container: #ff6467;
+  /* on-secondary-container #680010 → #44000a: 4.56 → 5.82 */
+  --md-sys-color-on-secondary-container: #44000a;
+
+  --md-sys-color-tertiary-container: #fbfffa;
+  --md-sys-color-on-tertiary-container: #717672;
+  /* error-container #ba5f22 — средний тон, НА НЁМ НЕТ текста с AA (макс
+     4.42 с белым). M3-стандарт: светлый контейнер + тёмный текст
+     (#410002 on #ffdad6 ≈ 13.3:1). Тёмная пара без изменений. */
+  --md-sys-color-error-container: #ffdad6;
+  --md-sys-color-on-error-container: #410002;
+
+  --md-sys-color-tertiary: #5b5f5c;
+  --md-sys-color-on-tertiary: #ffffff;
+
+  --md-sys-color-error: #c81e00;
+  --md-sys-color-on-error: #ffffff;
+
+  --md-sys-color-background: #f7faf5;
+  --md-sys-color-on-background: #181d1a;
+
+  --md-sys-color-surface: #fcf8fa;
+  --md-sys-color-on-surface: #1b1b1d;
+  --md-sys-color-surface-variant: #e1e2e8;
+  --md-sys-color-on-surface-variant: #44474b;
+
+  --md-sys-color-outline: #75777c;
+  --md-sys-color-outline-variant: #c5c6cc;
+  --md-sys-color-scrim: #000000;
+
+  /* Surface Container Levels — Light */
+  --md-sys-color-surface-container-lowest: #ffffff;
+  --md-sys-color-surface-container-low: #f6f3f4;
+  --md-sys-color-surface-container: #f0edee;
+  --md-sys-color-surface-container-high: #f6f1f2;
+  --md-sys-color-surface-container-highest: #e4e2e3;
+
+  /* Extended Light Accent Palette */
+  --md-ext-lime-accent: #546524;
+  --md-ext-on-lime-accent: #ffffff;
+  --md-ext-lavender-light: #5a5891;
+  --md-ext-lavender-purple: #6e528a;
+  --md-ext-green-accent: #336210;
+
+  --md-sys-color-surface-input: var(--md-sys-color-surface-container-lowest);
+
+}
+
+/* 3. DARK THEME OVERRIDES */
+
+/* 3a. Explicit dark theme (user toggle) */
+[data-theme="dark"] {
+  --md-sys-color-primary: #83d7b1;
+  --md-sys-color-surface-tint: #83d7b1;
+  --md-sys-color-on-primary: #003826;
+  --md-sys-color-primary-container: #0b6e4f;
+  --md-sys-color-on-primary-container: #d9f9e7;
+
+  --md-sys-color-secondary: #ffb3b1;
+  --md-sys-color-on-secondary: #680011;
+  --md-sys-color-secondary-container: #ff6467;
+  --md-sys-color-on-secondary-container: #44000a;
+
+  --md-sys-color-tertiary-container: #dfe4df;
+  --md-sys-color-on-tertiary-container: #616562;
+  --md-sys-color-error-container: #d17d00;
+  --md-sys-color-on-error-container: #402300;
+
+  --md-sys-color-tertiary: #ffffff;
+  --md-sys-color-on-tertiary: #2d312e;
+
+  --md-sys-color-error: #fd7654;
+  --md-sys-color-on-error: #491600;
+
+  --md-sys-color-background: #101412;
+  --md-sys-color-on-background: #e0e3df;
+
+  --md-sys-color-surface: #131314;
+  --md-sys-color-on-surface: #e4e2e3;
+  --md-sys-color-surface-variant: #44474b;
+  --md-sys-color-on-surface-variant: #c5c6cc;
+
+  --md-sys-color-outline: #8f9196;
+  --md-sys-color-outline-variant: #44474b;
+
+  /* Surface Container Levels — Dark */
+  --md-sys-color-surface-container-lowest: #0e0e0f;
+  --md-sys-color-surface-container-low: #1b1b1d;
+  --md-sys-color-surface-container: #1f1f21;
+  --md-sys-color-surface-container-high: #2a2a2b;
+  --md-sys-color-surface-container-highest: #353536;
+
+  --md-ext-lime-accent: #bbcf81;
+  --md-ext-on-lime-accent: #283500;
+  --md-ext-lavender-light: #c3c0ff;
+  --md-ext-lavender-purple: #dbb9f9;
+  --md-ext-green-accent: #98d46f;
+
+  --md-sys-color-surface-input: var(--md-sys-color-surface-container-lowest);
+
+  /* Portfolio Card shadows — Dark: all black, no green glow */
+  --shadow-card-accent: rgba(0, 0, 0, 0.30);
+  --shadow-card-glow: rgba(0, 0, 0, 0.86);
+  --shadow-card-base: rgba(0, 0, 0, 0.05);
+}
+
+/* 3b. System dark theme fallback (when no explicit choice) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --md-sys-color-primary: #83d7b1;
+    --md-sys-color-surface-tint: #83d7b1;
+    --md-sys-color-on-primary: #003826;
+    --md-sys-color-primary-container: #0b6e4f;
+    --md-sys-color-on-primary-container: #d9f9e7;
+
+    --md-sys-color-secondary: #ffb3b1;
+    --md-sys-color-on-secondary: #680011;
+    --md-sys-color-secondary-container: #ff6467;
+    --md-sys-color-on-secondary-container: #44000a;
+
+    --md-sys-color-tertiary-container: #dfe4df;
+    --md-sys-color-on-tertiary-container: #616562;
+    --md-sys-color-error-container: #d17d00;
+    --md-sys-color-on-error-container: #402300;
+
+    --md-sys-color-tertiary: #ffffff;
+    --md-sys-color-on-tertiary: #2d312e;
+
+    --md-sys-color-error: #ffb86e;
+    --md-sys-color-on-error: #492900;
+
+    --md-sys-color-background: #101412;
+    --md-sys-color-on-background: #e0e3df;
+
+    --md-sys-color-surface: #131314;
+    --md-sys-color-on-surface: #e4e2e3;
+    --md-sys-color-surface-variant: #44474b;
+    --md-sys-color-on-surface-variant: #c5c6cc;
+
+    --md-sys-color-outline: #8f9196;
+    --md-sys-color-outline-variant: #44474b;
+
+    /* Surface Container Levels — Dark */
+    --md-sys-color-surface-container-lowest: #0e0e0f;
+    --md-sys-color-surface-container-low: #1b1b1d;
+    --md-sys-color-surface-container: #1f1f21;
+    --md-sys-color-surface-container-high: #2a2a2b;
+    --md-sys-color-surface-container-highest: #353536;
+
+    --md-ext-lime-accent: #bbcf81;
+    --md-ext-on-lime-accent: #283500;
+    --md-ext-lavender-light: #c3c0ff;
+    --md-ext-lavender-purple: #dbb9f9;
+    --md-ext-green-accent: #98d46f;
+
+    /* Portfolio Card shadows — Dark */
+    --shadow-card-accent: rgba(0, 0, 0, 0.30);
+    --shadow-card-glow: rgba(0, 0, 0, 0.86);
+    --shadow-card-base: rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* 4. BASE STYLES & UTILITIES */
+
+/* Admin: все input и textarea имеют цвет фона --md-sys-color-surface-input */
+.admin-layout input,
+.admin-layout textarea {
+  background-color: var(--md-sys-color-surface-input);
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-body-md);
+  line-height: var(--text-body-md--line-height);
+  font-weight: var(--text-body-md--font-weight);
+  color: var(--md-sys-color-on-background);
+  /* Канвас страницы = цвет блоков (решение (12) в Main_page_Spec.md):
+     за стеклом шапки и при overscroll виден тот же цвет, что у секций.
+     Токен Background (#f7faf5/#101412) остаётся за футером (bg-background)
+     и фолбэком обложки (.hero-block-gradient). */
+  background-color: var(--md-sys-color-surface-container-lowest);
+  min-height: 100dvh;
+}
+
+.hero-title-scrim {
+  background: linear-gradient(to top,
+      color-mix(in srgb, var(--md-sys-color-scrim) 72%, transparent),
+      color-mix(in srgb, var(--md-sys-color-scrim) 24%, transparent),
+      transparent);
+}
+
+.table-cell-truncate {
+  max-width: 0;
+  width: 100%;
+}
+
+/* Scrim для hero-изображения (Figma: On surface gradient).
+   <lg — усиленный оверрайд: на низких обложках (320–420px) стоковый
+   градиент выцветал уже на высоте заголовка, текст терял читаемость
+   (решение (16)); тёмная зона растянута до ~85% высоты. */
+.hero-image-scrim {
+  background: linear-gradient(0deg,
+      rgba(27, 27, 29, 0.75) 14%,
+      rgba(24, 29, 26, 0.16) 50%,
+      rgba(27, 27, 29, 0) 100%);
+}
+
+@media (max-width: 1023px) {
+  .hero-image-scrim {
+    background: linear-gradient(0deg,
+        rgba(27, 27, 29, 0.8) 22%,
+        rgba(24, 29, 26, 0.45) 55%,
+        rgba(27, 27, 29, 0.12) 85%,
+        rgba(27, 27, 29, 0) 100%);
+  }
+}
+
+/* Фолбэк обложки: токен Background (#f7faf5/#101412 — тон футера).
+   Канвас страницы с решения (12) — surface-container-lowest. */
+.hero-block-gradient {
+  background-color: var(--md-sys-color-background);
+}
+
+/* Header glass — фон и тень (решения 2026-08-27 (7), (8)). Равномерный
+   #F7FAF5 70%: после починки блюра (7) при 88% дымка была деликатной,
+   по фидбэку «хочется заметнее» альфа снижена до 0.70 (история: спека
+   literal — градиент 1.0→0.08 + blur 40px; (3)/(4) — плашка 0.5→0.9;
+   (5) — градиент 0.88→0.10 + blur 4px; (6)/(7) — плашка 0.88).
+   ВНИМАНИЕ: backdrop-filter сюда НЕ возвращать! LightningCSS в пайплайне
+   Tailwind v4 (дефолтные таргеты, Safari < 18) «канонизирует» пару
+   стандартное+префиксное до одного -webkit- — Firefox стандартное свойство
+   не понимает, итого «блюра нет» при формально живом CSS. Блюр живёт
+   utility-классами на <header> в SiteHeader.tsx: backdrop-blur-md
+   (= blur 12px) + backdrop-saturate-[1.8] (= 180%) — Tailwind-утилиты
+   эмитят ОБЕ формы через var(--tw-backdrop-*), LightningCSS их сохраняет.
+   Тьма: тема на data-атрибуте → [data-theme='dark'], не .dark. */
+.header-glass {
+  background: rgba(247, 250, 245, 0.7);
+  box-shadow: 8px 8px 20px 0px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme='dark'] .header-glass {
+  background: rgba(10, 10, 10, 0.7);
+  box-shadow: 8px 8px 20px 0px rgba(0, 0, 0, 0.25);
+}
+
+/* Portfolio Card — рецепт из make-export (PortfolioGallery.tsx, решение
+   2026-08-27 (9) в Main_page_Spec.md). Фон: Make = белый (свет) /
+   rgba(30,30,30,0.9) (тьма) — светлее прежнего surface-container-low
+   (#f6f3f4) по фидбэку «в мейке светлее». Дефолтные тени = прежние токены
+   --shadow-card-* (значения совпадают), hover — усиленные из Make.
+   Ховер: scale(1.02) + 500ms (в Make transition-all duration-500).
+   Правило unlayered перекрывает utility-классы — фон/тени НЕ дублировать
+   Tailwind-классами в PortfolioCard.tsx. Тьма: [data-theme='dark']. */
+.portfolio-card {
+  background: #ffffff;
+  box-shadow:
+    4px 4px 2px 0px rgba(0, 0, 0, 0.05),
+    16px 9px 12px -1px rgba(242, 242, 242, 0.86),
+    10px 10px 8px -2px rgba(177, 211, 196, 0.3);
+  transition: all 500ms ease;
+}
+
+.portfolio-card:hover {
+  transform: scale(1.02);
+  box-shadow:
+    6px 6px 3px 0px rgba(0, 0, 0, 0.08),
+    20px 12px 16px -1px rgba(242, 242, 242, 0.9),
+    12px 12px 10px -2px rgba(177, 211, 196, 0.4);
+}
+
+[data-theme='dark'] .portfolio-card {
+  background: rgba(30, 30, 30, 0.9);
+  box-shadow:
+    0px 20px 40px 0px rgba(0, 0, 0, 0.4),
+    0px 10px 20px 0px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme='dark'] .portfolio-card:hover {
+  box-shadow:
+    0px 30px 60px 0px rgba(0, 0, 0, 0.5),
+    0px 15px 30px 0px rgba(0, 0, 0, 0.4);
+}
+
+/*
+ * Platform Benefit cards используют тень .portfolio-card, но это не ссылки —
+ * hover-масштабирование (transform: scale) отключаем, оставляем только тень.
+ * Фон — surface-container (#f0edee), на ступень темнее канваса секции
+ * (lowest #ffffff). Первая попытка с surface-container-low (#f6f3f4) против
+ * белого не читалась (фидбэк: «не отличаются по цвету») — помогло потемнение
+ * до surface-container. Hairline-контур (outline) был добавлен вместе с ним,
+ * но после потемнения стал лишним — снят (фидбэк 2026-09-12). В тёмной теме
+ * фон/тень переопределяет [data-theme='dark'] .portfolio-card (специфичнее).
+ */
+.platform-benefit-card {
+  background: var(--md-sys-color-surface-container);
+}
+
+.platform-benefit-card:hover {
+  transform: none;
+}
+
+/*
+ * Team cards (секция Studio главной) — карточки двух основателей.
+ *
+ * Отдельный класс от .platform-benefit-card: у тех фон — surface-container
+ * (#f0edee в светлой теме), и на белом холсте секции они читались как
+ * тяжёлые серые плиты (фидбэк 2026-09-26: «в тёмной теме хорошо, в
+ * светлой серый темноват»). Тёмная тема работала, потому что там
+ * surface-container светлее холста (lowest #0e0e0f → #1f1f21), а в
+ * светлой — темнее, и контраст уходил в грязь.
+ *
+ * Что сделано: заливка опущена на ступень до surface-container-low
+ * (#f6f3f4 / #1b1b1d) — в тёмной теме это практически прежний цвет,
+ * в светлой карточка перестаёт давить. Объём теперь держит hairline-контур
+ * outline-variant (#c5c6cc / #44474b), а не заливка. Именно этот вариант
+ * был отвергнут в 2026-09-12 для benefit-карточек — там он не работал
+ * против surface-container-подложки; здесь холст белый, и контур вместо
+ * заливки как раз то, что нужно.
+ */
+.team-card {
+  /* Светлая тема: белая карточка на белом холсте + мягкая тень с зелёным
+     подтоном — тот же язык карточек, что и .portfolio-card в блоке Work
+     (проверен на этой странице). Никакого серого, никакой границы. */
+  background: var(--md-sys-color-surface-container-lowest);
+  box-shadow:
+    0 2px 6px 0px rgba(24, 29, 26, 0.05),
+    0 14px 28px -8px rgba(177, 211, 196, 0.4);
+  /* Границы быть не должно (фидбэк 2026-09-26): ни hairline, ни контур —
+     объём держит только тень. Явно гасим border, потому что глобальные
+     reset'ы Tailwind его не снимают на элементах списка. */
+  border: none;
+}
+
+/* Тёмная тема: прежняя заливка surface-container-low (#1b1b1d на канвасе
+   #0e0e0f) — её фидбэк назвал удачной; добавлена только мягкая тень вместо
+   снятого контура. */
+[data-theme='dark'] .team-card {
+  background: var(--md-sys-color-surface-container-low);
+  box-shadow:
+    0 2px 6px 0px rgba(0, 0, 0, 0.35),
+    0 14px 28px -8px rgba(0, 0, 0, 0.45);
+  border: none;
+}
+
+/*
+ * Bokeh band — слой фоновых элементов ОТ NavLabel Approach ДО NavLabel Studio.
+ *
+ * ГЛАВНОЕ, что стоит знать про этот блок: `bottom` отсчитывается от нижней
+ * границы РОДИТЕЛЯ. Родитель — обёртка, а она содержит ОБЕ секции целиком,
+ * поэтому `bottom: 0` = низ секции Studio, а не подпись «Studio». Попытка
+ * выразить конец полосы через отрицательный bottom (2026-09-26, решение 72)
+ * была неверной: расстояние от низа Studio до его же NavLabel равно высоте
+ * КОНТЕНТА Studio, а она динамическая. Полоса уезжала на всю секцию — это и
+ * было «боке растянуто на два блока».
+ *
+ * Решение: обёртка заканчивается СРАЗУ ПОСЛЕ отступа, который раньше был
+ * верхним padding'ом Studio (теперь это пустой div-распорка h-12 / md:h-24),
+ * а секция Studio начинается с pt-0. Тогда `bottom: 0` приходится ровно на
+ * верх подписи «Studio», и полоса не заходит на неё. Нижний край полосы
+ * совпадает с границей блоков — стыка не видно, визуально это непрерывная
+ * зона между двумя подписями.
+ *
+ * `top` = верхний padding Approach (48 / 96 / 120) — полоса начинается на
+ * линии подписи «Approach».
+ *
+ * Класс, а не утилиты `bottom-[-*]`: произвольные отрицательные inset'ы
+ * в этом проекте не генерируются (проверено по собранному CSS — ни одного
+ * `bottom-[...]`). Обычный CSS от JIT-сканирования не зависит.
+ */
+.bokeh-band {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 48px;
+  bottom: 0;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .bokeh-band {
+    top: 96px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .bokeh-band {
+    top: 120px;
+  }
+}
+
+/*
+ * Контейнер контента внутри полноширинных блоков (паттерн Figma: Section → container → Content Slot).
+ * Блок-секция тянется на всю ширину экрана и несёт фон + вертикальный паддинг,
+ * а контейнер ограничивает содержимое шириной 1280px по центру и держит
+ * собственные боковые паддинги для контента — по типам устройств
+ * (1:1 с исходником Make: Container max-w-[1280px] + px 24/48/64, решение (24)):
+ *   mobile  (<768px): 24px  (Make: px-[24px])
+ *   tablet  (≥768px): 48px  (Make: md:px-[48px]; в Figma планшет отсутствует)
+ *   desktop (≥1024px): 64px (Make: lg:px-[64px] → контент 1152 в колонке 1280)
+ */
+.section-container {
+  width: 100%;
+  max-width: var(--max-width-container-content);
+  margin-inline: auto;
+  padding-inline: 24px;
+}
+
+@media (min-width: 768px) {
+  .section-container {
+    padding-inline: 48px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section-container {
+    padding-inline: 64px;
+  }
+}
+
+/*
+ * Sticky-шапка: якорные переходы (#portfolio / #about / #contact) не должны
+ * прятать заголовки секций под ней. Отступ = высота шапки (72px) + 8px.
+ */
+[id] {
+  scroll-margin-top: 80px; /* desktop: шапка 72px + 8px (решение (18)) */
+}
+
+@media (max-width: 767px) {
+  [id] {
+    scroll-margin-top: 72px; /* mobile: шапка 64px + 8px */
+  }
+}
+
+/* ============================================================
+   ПЕЧАТЬ / PDF — TL;DR (страница /short). Решение (65).
+   Hiring manager сохраняет короткую версию как PDF через
+   диалог печати. Обёртка .print-short стоит на корневом div
+   страницы /short. Блок в конце файла: при печати :root-токены
+   ниже переигрывают [data-theme='dark'] (та же специфичность,
+   выигрывает позднее правило) — печатаем всегда в светлой теме.
+   ============================================================ */
+@media print {
+  @page {
+    margin: 14mm;
+  }
+
+  /* Принудительно светлая палитра (копия M3 Light из :root) */
+  :root {
+    --md-sys-color-primary: #00543b;
+    --md-sys-color-surface-tint: #056c4d;
+    --md-sys-color-on-primary: #ffffff;
+    --md-sys-color-primary-container: #0b6e4f;
+    --md-sys-color-on-primary-container: #d9f9e7;
+    --md-sys-color-secondary: #b12a33;
+    --md-sys-color-on-secondary: #ffffff;
+    --md-sys-color-secondary-container: #ff6467;
+    --md-sys-color-on-secondary-container: #44000a;
+    --md-sys-color-tertiary-container: #fbfffa;
+    --md-sys-color-on-tertiary-container: #717672;
+    --md-sys-color-error-container: #ffdad6;
+    --md-sys-color-on-error-container: #410002;
+    --md-sys-color-tertiary: #5b5f5c;
+    --md-sys-color-on-tertiary: #ffffff;
+    --md-sys-color-error: #c81e00;
+    --md-sys-color-on-error: #ffffff;
+    --md-sys-color-background: #ffffff;
+    --md-sys-color-on-background: #181d1a;
+    --md-sys-color-surface: #ffffff;
+    --md-sys-color-on-surface: #1b1b1d;
+    --md-sys-color-surface-variant: #e1e2e8;
+    --md-sys-color-on-surface-variant: #44474b;
+    --md-sys-color-outline: #75777c;
+    --md-sys-color-outline-variant: #c5c6cc;
+    --md-sys-color-surface-container-lowest: #ffffff;
+    --md-sys-color-surface-container-low: #f6f3f4;
+    --md-sys-color-surface-container: #f0edee;
+    --md-sys-color-surface-container-high: #f6f1f2;
+    --md-sys-color-surface-container-highest: #e4e2e3;
+  }
+
+  body {
+    background: #ffffff !important;
+  }
+
+  .print-short {
+    background: #ffffff !important;
+    min-height: 0 !important;
+  }
+
+  /* Скрыть экранную обвязку: шапку, футер, CTA-блок, кнопку печати */
+  .print-short > header,
+  .print-short > footer,
+  .print-short .no-print {
+    display: none !important;
+  }
+
+  /* Обложка компактнее — целиком на первой странице */
+  .print-short .cover-shell {
+    /* height:auto + min-height: контейнер растёт по контенту — длинный
+       заголовок/теги/teaser больше не срезаются верхним краем (фидбэк) */
+    height: auto !important;
+    min-height: 250px !important;
+    width: 100% !important;
+    margin: 0 !important;
+    border-radius: 1rem !important;
+  }
+
+  /* Сохранить фоновые заливки (скрим, белые пилюли тегов) —
+     без них заголовок поверх фото нечитаем на бумаге */
+  .print-short .cover-shell,
+  .print-short .hero-image-scrim {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Карточки метрик/скринов не разрывать между страницами */
+  .print-short .print-avoid {
+    break-inside: avoid;
+  }
+
+  /* Заголовок секции не оставлять в одиночестве внизу страницы */
+  .print-short section {
+    break-inside: auto;
+  }
+  .print-short section > :first-child {
+    break-after: avoid;
+  }
+
+  /* Цельные блоки не разрывать между страницами: карточки, цитаты,
+     подписи, обложка, кнопки. Перенос — по гапам между контейнерами. */
+  .print-short figure,
+  .print-short figure *,
+  .print-short button,
+  .print-short blockquote {
+    break-inside: avoid;
+  }
+}
