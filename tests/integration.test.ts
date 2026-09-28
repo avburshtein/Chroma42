@@ -17,7 +17,7 @@ import {
     findPair,
     pairsByCategory,
 } from '../src/engine';
-import { buildAuditReport, buildPassport, checkPair } from '../src/engine/audit/audit';
+import { buildAuditReport, buildPassport, checkPair, METHODOLOGY_VERSION } from '../src/engine/audit/audit';
 import { solvePair, toneSearchOrder } from '../src/engine/solver/solver';
 
 const NEUTRAL_SEED = '#00543b';
@@ -266,9 +266,11 @@ describe('Полный цикл: сид -> шкалы -> аудит -> пасп�
         expect(passport.engineVersion).toContain('chroma42');
         expect(passport.methodology).toMatchObject({
             name: 'Chroma42 Color Pair Methodology',
-            version: '1.0.0',
+            // Версия обязана совпадать с заголовком нормативного документа.
+            version: METHODOLOGY_VERSION,
             colorSpace: 'OKLCH',
         });
+        expect(METHODOLOGY_VERSION).toBe('2.0.0');
         expect(String(passport.legalDisclaimer)).toContain(
             'не является юридическим сертификатом',
         );

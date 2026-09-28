@@ -27,7 +27,12 @@ export const PASSPORT_VERSION = '1.0';
 export const ENGINE_VERSION = 'chroma42-oklch-solver-1.0.0';
 
 /** Версия методологии. */
-export const METHODOLOGY_VERSION = '1.0.0';
+/**
+ * Версия методологии. Повышается при изменении определений, порогов
+ * или правил проверки. Должна совпадать с версией в
+ * `Docs/Chroma42 Color Pair Methodology.md`.
+ */
+export const METHODOLOGY_VERSION = '2.0.0';
 
 /**
  * Юридический дисклеймер.
