@@ -124,6 +124,11 @@ export {
     checkPair,
 } from './audit/audit';
 
+// --- Движок 6: раскладка семантических токенов ------------------------------
+export type { BuildModesResult } from './theme-builder';
+
+export { buildModes, IDEAL_TONES_DARK, IDEAL_TONES_LIGHT } from './theme-builder';
+
 // --- Модель темы ----------------------------------------------------------
 export type {
     AuditCheck,

@@ -29,9 +29,11 @@ export type ThemeMode =
     | 'light-normal'
     | 'light-medium'
     | 'light-high'
+    | 'light-reduced-transparency'
     | 'dark-normal'
     | 'dark-medium'
-    | 'dark-high';
+    | 'dark-high'
+    | 'dark-reduced-transparency';
 
 /** Порог для конкретной пары в рамках политики. */
 export type ResolvedThreshold = {
@@ -206,12 +208,19 @@ export const THEME_MODES: readonly ThemeMode[] = [
     'light-normal',
     'light-medium',
     'light-high',
+    'light-reduced-transparency',
     'dark-normal',
     'dark-medium',
     'dark-high',
+    'dark-reduced-transparency',
 ];
 
 /** Базовая схема режима: `light-high` -> `light`. */
 export function modeScheme(mode: ThemeMode): 'light' | 'dark' {
     return mode.startsWith('dark') ? 'dark' : 'light';
+}
+
+/** Является ли режим режимом сниженной прозрачности. */
+export function isReducedTransparency(mode: ThemeMode): boolean {
+    return mode.endsWith('-reduced-transparency');
 }
