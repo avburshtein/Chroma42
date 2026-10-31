@@ -142,6 +142,19 @@ export {
     resolveTokenValue,
 } from './export/tailwind';
 
+// --- Движок шаринга темы по URL ----------------------------------------------
+export type { SharePayload, ShareLinkErrorCode } from './share/share-link';
+
+export {
+    SHARE_LINK_VERSION,
+    ShareLinkError,
+    buildShareLink,
+    decodeSharePayload,
+    encodeSharePayload,
+    parseShareLink,
+} from './share/share-link';
+
+// --- Модель темы ----------------------------------------------------------
 // --- Модель темы ----------------------------------------------------------
 export type {
     AuditCheck,
