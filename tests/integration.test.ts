@@ -270,7 +270,7 @@ describe('Полный цикл: сид -> шкалы -> аудит -> пасп�
             version: METHODOLOGY_VERSION,
             colorSpace: 'OKLCH',
         });
-        expect(METHODOLOGY_VERSION).toBe('2.0.0');
+        expect(METHODOLOGY_VERSION).toBe('2.1.0');
         expect(String(passport.legalDisclaimer)).toContain(
             'не является юридическим сертификатом',
         );

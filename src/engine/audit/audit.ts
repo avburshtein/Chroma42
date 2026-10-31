@@ -32,7 +32,7 @@ export const ENGINE_VERSION = 'chroma42-oklch-solver-1.0.0';
  * или правил проверки. Должна совпадать с версией в
  * `Docs/Chroma42 Color Pair Methodology.md`.
  */
-export const METHODOLOGY_VERSION = '2.0.0';
+export const METHODOLOGY_VERSION = '2.1.0';
 
 /**
  * Юридический дисклеймер.
