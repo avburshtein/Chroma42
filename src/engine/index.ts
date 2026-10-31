@@ -129,6 +129,19 @@ export type { BuildModesResult } from './theme-builder';
 
 export { buildModes, IDEAL_TONES_DARK, IDEAL_TONES_LIGHT } from './theme-builder';
 
+// --- Движок 7: экспорт в Tailwind v4 ----------------------------------------
+export type { ExportArtifact, ExportResult } from './export/tailwind';
+
+export {
+    ExportBlockedError,
+    exportTailwindTheme,
+    flattenModes,
+    generatePassportJson,
+    generateTailwindPreset,
+    generateTokensCss,
+    resolveTokenValue,
+} from './export/tailwind';
+
 // --- Модель темы ----------------------------------------------------------
 export type {
     AuditCheck,

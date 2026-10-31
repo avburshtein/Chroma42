@@ -26,10 +26,14 @@ import { resolveThreshold } from '../policy/policy';
 /** Результат решения по одной паре. */
 export type SolveResult = {
     readonly pair: string;
-    /** Исходный (идеальный) тон. */
+    /** Исходный (идеальный) тон переднего плана. */
     readonly idealTone: number;
-    /** Выбранный тон, либо `null`, если решения нет. */
+    /** Выбранный тон переднего плана, либо `null`, если решения нет. */
     readonly solvedTone: number | null;
+    /** Исходный (идеальный) тон фона. Заполняется в solveSemanticPair. */
+    readonly idealBgTone?: number;
+    /** Выбранный тон фона, либо `null`, если решения нет. */
+    readonly solvedBgTone?: number | null;
     /** Достигнутый контраст. */
     readonly ratio: number;
     /** Требуемый порог. */

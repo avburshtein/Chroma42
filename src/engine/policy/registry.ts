@@ -196,8 +196,8 @@ export const PAIR_REGISTRY: readonly PairDefinition[] = [
         background: 'primary',
         category: 'focus',
         context: 'focus-indicator',
-        importance: 'required',
-        note: 'Индикатор фокуса поверх акцентного элемента.',
+        importance: 'recommended',
+        note: 'Фокус на акцентном элементе; primary кнопка уже имеет визуальную аффорданс через цвет.',
     },
     {
         key: 'on-surface/surface-container-high',

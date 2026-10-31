@@ -9,8 +9,9 @@
  * @see Docs/Общая архитектура Chroma42.md — раздел 8
  */
 
-import { composite } from './contrast/composite';
+import { alphaBlend, composite } from './contrast/composite';
 import { getContrastRatio } from './contrast/contrast';
+import { parseColor, formatHex } from './color/parse';
 import { PAIR_REGISTRY } from './policy/registry';
 import {
     resolveThreshold,
@@ -36,6 +37,8 @@ export const IDEAL_TONES_LIGHT: Readonly<Record<string, number>> = {
     'surface-container': 90,
     'surface-container-high': 80,
     'surface-container-highest': 60,
+    'surface-glass': 99,
+    overlay: 90,
 
     // Текст
     'on-surface': 5,
@@ -98,6 +101,8 @@ export const IDEAL_TONES_DARK: Readonly<Record<string, number>> = {
     'surface-container': 20,
     'surface-container-high': 30,
     'surface-container-highest': 50,
+    'surface-glass': 10,
+    overlay: 20,
 
     // Текст — инвертирован
     'on-surface': 99,
@@ -155,6 +160,21 @@ const TRANSPARENT_TOKENS = new Set([
 ]);
 
 /**
+ * Альфа-канал для прозрачных токенов.
+ *
+ * Стекло — 0.7 (по методологии, раздел 5.2), оверлей — 0.8,
+ * скрим — 0.5. В режиме reduced-transparency все прозрачные токены
+ * заменяются на непрозрачные фолбэки (alpha = 1).
+ *
+ * @see Docs/Chroma42 Color Pair Methodology.md — раздел 5.2
+ */
+const TRANSPARENT_ALPHAS: Record<string, number> = {
+    'surface-glass': 0.7,
+    overlay: 0.8,
+    scrim: 0.5,
+};
+
+/**
  * Результат сборки темы.
  */
 export type BuildModesResult = {
@@ -166,9 +186,21 @@ export type BuildModesResult = {
 
 
 /**
+ * Извлекает тон из ссылки `{scale.tone}`.
+ * @returns число тона или `undefined`, если ссылка не распознана.
+ */
+function toneOfRef(value: string): number | undefined {
+    const match = /^\{([A-Za-z-]+)\.(\d+)\}$/.exec(value);
+    return match ? Number(match[2]) : undefined;
+}
+
+/**
  * Подбирает тона для пары, учитывая отдельные идеалы для переднего плана
  * и фона. В отличие от solvePair, который фиксирует фон на scale[idealTone],
  * здесь оба конца пары подбираются независимо.
+ *
+ * @param fixedBackgroundTone уже зафиксированный тон фона — если задан,
+ *                            фон не подбирается (модель «первый писавший побеждает»).
  */
 function solveSemanticPair(
     pair: PairDefinition,
@@ -179,13 +211,24 @@ function solveSemanticPair(
     idealForegroundTone: number,
     idealBackgroundTone: number,
     backdrop?: string,
+    fixedBackgroundTone?: number,
+    fixedForegroundTone?: number,
 ): SolveResult {
     const threshold = resolveThreshold(pair, policy, mode);
-    const availableTones = Object.keys(fgScale).map(Number);
+
+    // Для glass-пар с подложкой прозрачный фон «запекается» — так же, как
+    // это делает аудит (checkPair → composite), чтобы солвер и паспорт
+    // всегда считали одинаково.
+    const reduced = isReducedTransparency(mode);
+    const bgAlpha = reduced ? 1 : (TRANSPARENT_ALPHAS[pair.background] ?? 1);
+    const useBaking =
+        pair.category === 'glass' && !!pair.requiresBackdrop && !!backdrop && bgAlpha < 1;
 
     // Все комбинации (fg, bg), отсортированные по суммарному отклонению от идеалов
-    const combinations = availableTones.flatMap((fg) =>
-        availableTones.map((bg) => ({
+    const fgTones = fixedForegroundTone !== undefined ? [fixedForegroundTone] : Object.keys(fgScale).map(Number);
+    const bgTones = fixedBackgroundTone !== undefined ? [fixedBackgroundTone] : Object.keys(bgScale).map(Number);
+    const combinations = fgTones.flatMap((fg) =>
+        bgTones.map((bg) => ({
             fg,
             bg,
             distance: Math.abs(fg - idealForegroundTone) + Math.abs(bg - idealBackgroundTone),
@@ -202,13 +245,19 @@ function solveSemanticPair(
 
         if (!fgColor || !bgColor) continue;
 
-        const ratio =
-            pair.category === 'glass' && pair.requiresBackdrop
-                ? getContrastRatio(
-                      fgColor,
-                      composite(bgColor, backdrop ?? bgColor).color,
-                  )
-                : getContrastRatio(fgColor, bgColor);
+        let bgForContrast = bgColor;
+
+        if (useBaking) {
+            const bgRgb = parseColor(bgColor);
+            const backdropRgb = parseColor(backdrop!);
+            if (bgRgb && backdropRgb) {
+                bgForContrast = formatHex(
+                    { ...alphaBlend(bgRgb, backdropRgb, bgAlpha), alpha: 1 },
+                );
+            }
+        }
+
+        const ratio = getContrastRatio(fgColor, bgForContrast);
 
         if (ratio > bestRatio) {
             bestRatio = ratio;
@@ -221,6 +270,8 @@ function solveSemanticPair(
                 pair: pair.key,
                 idealTone: idealForegroundTone,
                 solvedTone: fg,
+                idealBgTone: idealBackgroundTone,
+                solvedBgTone: bg,
                 ratio,
                 requiredRatio: threshold.ratio,
                 solved: true,
@@ -236,6 +287,8 @@ function solveSemanticPair(
         pair: pair.key,
         idealTone: idealForegroundTone,
         solvedTone: bestFg ?? null,
+        idealBgTone: idealBackgroundTone,
+        solvedBgTone: bestBg ?? null,
         ratio: bestRatio,
         requiredRatio: threshold.ratio,
         solved: false,
@@ -351,6 +404,13 @@ export function buildModes(
             const fgScale = primitives[fgScaleName as keyof Primitives] as ToneScale;
             const bgScale = primitives[bgScaleName as keyof Primitives] as ToneScale;
 
+            // Модель «первый писавший побеждает»: если fg или bg уже записаны
+            // более ранней парой, фиксируем их тона и не перезаписываем.
+            const existingFg = semantics[foregroundToken];
+            const existingBg = semantics[backgroundToken];
+            const fixedFgTone = existingFg ? toneOfRef(existingFg.value) : undefined;
+            const fixedBgTone = existingBg ? toneOfRef(existingBg.value) : undefined;
+
             const result = solveSemanticPair(
                 pair,
                 policy,
@@ -360,34 +420,39 @@ export function buildModes(
                 idealFg,
                 idealBg,
                 backdrop,
+                fixedBgTone,
+                fixedFgTone,
             );
 
-            // Применяем результат: если solved, используем solvedTone, иначе ideal
-            const finalFgTone = result.solvedTone ?? idealFg;
+            // Применяем результат: первый писавший сохраняет своё значение
+            const finalFgTone = fixedFgTone ?? (result.solvedTone ?? idealFg);
+            const finalBgTone = fixedBgTone ?? (result.solvedBgTone ?? idealBg);
 
-            // Для background используем idealBg, если foreground не изменился;
-            // если foreground изменился, bg остаётся idealBg (первый проход)
-            const finalBgTone = idealBg;
+            const isTransparent = TRANSPARENT_TOKENS.has(backgroundToken);
+            const bgAlpha = isTransparent && !isReduced
+                ? (TRANSPARENT_ALPHAS[backgroundToken] ?? 1)
+                : 1;
 
-            // Для foreground-токена сохраняем ссылку на примитив
+            // Для foreground-токена сохраняем ссылку на примитивную шкалу
+            // (по контракту SemanticValue ссылка указывает на примитив,
+            // например {neutral.5}, а не на имя семантического токена).
             semantics[foregroundToken] = {
-                value: `{${fgPrimitive}.${finalFgTone}}`,
+                value: `{${fgScaleName}.${finalFgTone}}`,
                 alpha: 1,
             };
 
-            // Для background-токена — аналогично
+            // Для background-токена: прозрачные получают альфу и metadata,
+            // непрозрачные — alpha = 1 без fallback.
             semantics[backgroundToken] = {
-                value: `{${bgPrimitive}.${finalBgTone}}`,
-                alpha: 1,
+                value: `{${bgScaleName}.${finalBgTone}}`,
+                alpha: bgAlpha,
+                ...(bgAlpha < 1
+                    ? {
+                          fallback: `{${bgScaleName}.${finalBgTone}}`,
+                          requiresBackdrop: pair.requiresBackdrop,
+                      }
+                    : {}),
             };
-
-            // Для reduced-transparency режимов: если токен прозрачный, заменяем на fallback
-            if (isReduced && TRANSPARENT_TOKENS.has(foregroundToken)) {
-                semantics[foregroundToken] = {
-                    value: `{${bgPrimitive}.${finalBgTone}}`,
-                    alpha: 1,
-                };
-            }
 
             // Если солвер не нашёл решения, добавляем предупреждение
             if (!result.solved) {
@@ -397,6 +462,9 @@ export function buildModes(
             // Если тон изменился относительно идеала, фиксируем исправление
             if (finalFgTone !== idealFg) {
                 fixes[foregroundToken] = finalFgTone;
+            }
+            if (finalBgTone !== idealBg) {
+                fixes[backgroundToken] = finalBgTone;
             }
         }
 
