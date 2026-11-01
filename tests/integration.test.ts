@@ -9,6 +9,7 @@ import { describe, expect, it } from 'vitest';
 import {
     PAIR_REGISTRY,
     REQUIRED_PAIRS,
+    STATUS_SEED_ANCHORS,
     generateNeutralScale,
     generateScale,
     generateStatusScale,
@@ -20,7 +21,7 @@ import {
 import { buildAuditReport, buildPassport, checkPair, METHODOLOGY_VERSION } from '../src/engine/audit/audit';
 import { solvePair, toneSearchOrder } from '../src/engine/solver/solver';
 
-const NEUTRAL_SEED = '#00543b';
+const NEUTRAL_SEED = STATUS_SEED_ANCHORS.info;
 
 describe('Реестр пар', () => {
     it('содержит пары во всех категориях', () => {
@@ -144,12 +145,7 @@ describe('Полный цикл: сид -> шкалы -> аудит -> пасп�
         const onAccentTone = flip ? 5 : 99;
 
         // Статусные шкалы строятся из собственных сидов.
-        const statusSeeds = {
-            success: '#1b5e20',
-            warning: '#8a5100',
-            error: '#b12a33',
-            info: '#00543b',
-        } as const;
+        const statusSeeds = STATUS_SEED_ANCHORS;
 
         const status = Object.fromEntries(
             Object.entries(statusSeeds).flatMap(([name, seed]) => {
@@ -277,7 +273,7 @@ describe('Полный цикл: сид -> шкалы -> аудит -> пасп�
     });
 
     it('все статусные шкалы генерируются из сидов', () => {
-        for (const seed of ['#1b5e20', '#8a5100', '#b12a33', '#00543b']) {
+        for (const seed of Object.values(STATUS_SEED_ANCHORS)) {
             expect(generateStatusScale(seed)[50]).toMatch(/^#[0-9a-f]{6}$/);
         }
     });

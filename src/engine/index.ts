@@ -61,6 +61,29 @@ export {
     normalizeHue,
 } from './scale/scale-engine';
 
+// --- Движок 1.5: якоря статусов ---------------------------------------------
+export type {
+    StatusSeedAnchors,
+    StatusSeedName,
+} from './seeds/anchors';
+
+export { STATUS_SEED_ANCHORS } from './seeds/anchors';
+
+// --- Движок 1.5: подбор сидов и гармонии -----------------------------------
+export type {
+    HarmonyScheme,
+    HarmonySchemeId,
+    HarmonySeedOptions,
+    HarmonySeeds,
+} from './seeds/schemes';
+
+export {
+    HARMONY_SCHEMES,
+    applyHarmony,
+    generateHarmonySeeds,
+    maxChromaInSrgb,
+} from './seeds/schemes';
+
 // --- Движок 2: контраст и композитинг ------------------------------------
 export type { PairContext, WcagLevel } from './contrast/contrast';
 

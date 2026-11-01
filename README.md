@@ -17,7 +17,7 @@ WCAG 2.2 (SC 1.4.3, 1.4.6, 1.4.11, 2.4.13). Отчёт показывает пр
 
 ## Архитектура
 
-Шесть изолированных модулей. Они не импортируют друг друга напрямую
+Семь изолированных модулей. Они не импортируют друг друга напрямую
 и общаются через строгие TypeScript-интерфейсы.
 
 | Модуль | Путь | Ответственность |
@@ -28,6 +28,7 @@ WCAG 2.2 (SC 1.4.3, 1.4.6, 1.4.11, 2.4.13). Отчёт показывает пр
 | Policy | `src/engine/policy` | Реестр пар (30 пар), политики, пороги по режимам |
 | Solver | `src/engine/solver` | Подбор тонов, проходящих порог |
 | Audit | `src/engine/audit` | Проверка, паспорт, Markdown-отчёт |
+| Seeds | `src/engine/seeds` | Якорные сиды статусов и гармонические схемы |
 
 Полное описание — в [архитектуре](Docs/Общая%20архитектура%20Chroma42.md).
 
@@ -40,6 +41,17 @@ HSL некорректно воспринимается человеком: 50% 
 Цвета вне gamut sRGB (яркие синий и жёлтый) вписываются **бисекцией по
 хроматичности** при неизменных светлоте и оттёнке — так воспринимаемый цвет
 не «плывёт», в отличие от наивного обрезания каналов.
+
+### Сиды вместо литеральных цветов
+
+Статусные цвета не задаются вручную: якорные сиды (`STATUS_SEED_ANCHORS`)
+— единственный источник истины, а гармонические схемы порождают полный
+набор сидов (primary / secondary / tertiary / neutral) с сохранением
+воспринимаемого контраста. Хрома вписывается в gamut sRGB бисекцией
+с запасом `chromaSafety`, поэтому жёлтые и синие сиды не «выцветают».
+
+Доступные схемы: монохром, аналоговая, комплементарная,
+сплит-комплементарная, триада, тетрада (`HARMONY_SCHEMES`).
 
 ### Проверяем пары, а не цвета
 
@@ -59,14 +71,20 @@ WCAG не умеет работать с альфой. Движок «запек
 import {
     generateScale,
     generateNeutralScale,
+    generateHarmonySeeds,
+    STATUS_SEED_ANCHORS,
     getPolicy,
     REQUIRED_PAIRS,
     buildAuditReport,
     buildPassport,
 } from './src/engine';
 
-const primary = generateScale('#00543b');
-const neutral = generateNeutralScale('#00543b');
+// Статусы автоматически берутся из STATUS_SEED_ANCHORS,
+// опции chromaSafety/chromaFactors переопределяют поведение схемы.
+const seeds = generateHarmonySeeds('#00543b', 'analogous');
+
+const primary = generateScale(seeds.primary);
+const neutral = generateNeutralScale(seeds.primary);
 
 const tokens = {
     surface: neutral[99],
@@ -104,7 +122,7 @@ console.log(buildPassport(report, 'gov-aa', new Date().toISOString()));
 
 ```bash
 npm install
-npm test          # 67 тестов
+npm test          # 116 тестов
 npm run typecheck # tsc --noEmit
 ```
 
