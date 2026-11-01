@@ -84,6 +84,17 @@ export {
     maxChromaInSrgb,
 } from './seeds/schemes';
 
+// --- Движок 1.5 (часть 2): кластеризация k-means ---------------------------
+export type {
+    ExtractSeedCandidatesOptions,
+    SeedCandidate,
+} from './seeds/kmeans';
+
+export {
+    downsamplePixels,
+    extractSeedCandidates,
+} from './seeds/kmeans';
+
 // --- Движок 2: контраст и композитинг ------------------------------------
 export type { PairContext, WcagLevel } from './contrast/contrast';
 
