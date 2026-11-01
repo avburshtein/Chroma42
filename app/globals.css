@@ -1,0 +1,21 @@
+@import 'tailwindcss';
+@import './theme-mapping.css';
+@import './theme-default.css';
+
+/* База приложения: панель рендерится текущей темой — живое превью экспорта. */
+html {
+    color-scheme: light dark;
+}
+
+body {
+    background: var(--c42-surface);
+    color: var(--c42-on-surface);
+    font-family:
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        'Segoe UI',
+        Roboto,
+        sans-serif;
+    min-height: 100vh;
+}

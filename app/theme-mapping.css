@@ -1,0 +1,56 @@
+/* Chroma42 — tailwind.css
+ * Сгенерировано автоматически. Не редактируйте вручную.
+ * Тема: Chroma42 default | Политика: gov-aa
+ * Движок: oklch-custom-v1 vchroma42-oklch-solver-1.0.0 | Методология: v2.1.0
+ * Создано: 2026-11-01T18:29:54.076Z
+ * Проверено пар: 184 | Пройдено: 184 | Провалено: 0 | Предупреждений: 0
+ * Статический маппинг на Tailwind v4. Подключается один раз.
+ */
+
+/* Режимы: data-theme="light-normal" | "light-medium" | "light-high" |
+ * "light-reduced-transparency" | "dark-normal" | "dark-medium" |
+ * "dark-high" | "dark-reduced-transparency". */
+@custom-variant dark (&:where([data-theme^="dark"], [data-theme^="dark"] *));
+
+@theme inline {
+    --color-border-strong: var(--c42-border-strong);
+    --color-disabled: var(--c42-disabled);
+    --color-error: var(--c42-error);
+    --color-error-container: var(--c42-error-container);
+    --color-focus-ring: var(--c42-focus-ring);
+    --color-info: var(--c42-info);
+    --color-info-container: var(--c42-info-container);
+    --color-on-error: var(--c42-on-error);
+    --color-on-error-container: var(--c42-on-error-container);
+    --color-on-info: var(--c42-on-info);
+    --color-on-info-container: var(--c42-on-info-container);
+    --color-on-primary: var(--c42-on-primary);
+    --color-on-primary-container: var(--c42-on-primary-container);
+    --color-on-secondary: var(--c42-on-secondary);
+    --color-on-secondary-container: var(--c42-on-secondary-container);
+    --color-on-success: var(--c42-on-success);
+    --color-on-success-container: var(--c42-on-success-container);
+    --color-on-surface: var(--c42-on-surface);
+    --color-on-surface-muted: var(--c42-on-surface-muted);
+    --color-on-surface-variant: var(--c42-on-surface-variant);
+    --color-on-tertiary: var(--c42-on-tertiary);
+    --color-on-tertiary-container: var(--c42-on-tertiary-container);
+    --color-on-warning: var(--c42-on-warning);
+    --color-on-warning-container: var(--c42-on-warning-container);
+    --color-outline: var(--c42-outline);
+    --color-placeholder: var(--c42-placeholder);
+    --color-primary: var(--c42-primary);
+    --color-primary-container: var(--c42-primary-container);
+    --color-secondary: var(--c42-secondary);
+    --color-secondary-container: var(--c42-secondary-container);
+    --color-success: var(--c42-success);
+    --color-success-container: var(--c42-success-container);
+    --color-surface: var(--c42-surface);
+    --color-surface-container: var(--c42-surface-container);
+    --color-surface-container-high: var(--c42-surface-container-high);
+    --color-surface-glass: var(--c42-surface-glass);
+    --color-tertiary: var(--c42-tertiary);
+    --color-tertiary-container: var(--c42-tertiary-container);
+    --color-warning: var(--c42-warning);
+    --color-warning-container: var(--c42-warning-container);
+}

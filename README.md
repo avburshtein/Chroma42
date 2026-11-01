@@ -77,11 +77,16 @@ import {
     REQUIRED_PAIRS,
     buildAuditReport,
     buildPassport,
+    buildThemeBundle,
 } from './src/engine';
 
 // Статусы автоматически берутся из STATUS_SEED_ANCHORS,
 // опции chromaSafety/chromaFactors переопределяют поведение схемы.
 const seeds = generateHarmonySeeds('#00543b', 'analogous');
+
+// Полный пайплайн для UI: шкалы → раскладка 8 режимов → аудит → тема.
+const { theme } = buildThemeBundle('Моя тема', seeds, 'gov-aa');
+console.log(theme.audit.summary); // { passed, failed, exportAllowed }
 
 const primary = generateScale(seeds.primary);
 const neutral = generateNeutralScale(seeds.primary);
@@ -122,9 +127,18 @@ console.log(buildPassport(report, 'gov-aa', new Date().toISOString()));
 
 ```bash
 npm install
-npm test          # 116 тестов
+npm test          # 129 тестов
 npm run typecheck # tsc --noEmit
+npm run dev       # аудит-панель (Next.js) на localhost:3000
+npm run gen:theme # регенерация app/theme-*.css при смене реестра пар
 ```
+
+### Аудит-панель (этап 9)
+
+Минималистичный интерфейс: выбор primary-сида и гармонии, переключение
+8 режимов, таблица проверок с расшифровкой «почему», скачивание
+отчётов (JSON/MD) и экспорт темы. Движок работает целиком на клиенте —
+изображения и темы никуда не отправляются.
 
 ## Документация
 
