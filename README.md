@@ -131,7 +131,45 @@ npm test          # 129 тестов
 npm run typecheck # tsc --noEmit
 npm run dev       # аудит-панель (Next.js) на localhost:3000
 npm run gen:theme # регенерация app/theme-*.css при смене реестра пар
+npm run build:lib # сборка библиотеки в dist/ (ESM + .d.ts)
+npm pack          # tarball для локального потребления (file:vendor/*.tgz)
 ```
+
+## Использование как библиотека
+
+Пакет экспортирует движок **без React и без Next.js** — пригоден для
+серверного рендера, воркеров и генерации CSS. Точка входа `chroma42`
+(движки + модель темы + пайплайн сборки).
+
+```ts
+import {
+    buildThemeBundle,
+    defaultSeeds,
+    flattenModes,
+    generateScale,
+    getPolicy,
+} from 'chroma42';
+
+// Тема из сида + политики доступности
+const { theme } = buildThemeBundle('Моя тема', defaultSeeds(), 'standard-aa');
+
+// Плоская карта токенов по режимам (HEX-значения, пары разрешены)
+const flat = flattenModes(theme);
+const light = flat['light-normal']; // { primary: '#…', surface: '#…', … }
+
+// Отчёт доступности
+console.log(theme.audit.summary);
+// { totalPairsChecked: 184, passed: 184, warnings: 0, failed: 0, exportAllowed: true }
+```
+
+Режимы: `light-normal`, `light-medium`, `light-high`,
+`light-reduced-transparency` и те же четыре для `dark`.
+
+**Публикация.** Workflow `.github/workflows/publish.yml` публикует пакет
+в npm по релизу; нужен секрет `NPM_TOKEN`. До публикации пакет
+потребляется как tarball: `npm pack` в этом репозитории → положить
+`.tgz` в `vendor/` потребителя и указать зависимость
+`"chroma42": "file:./vendor/chroma42-<версия>.tgz"`.
 
 ### Аудит-панель (этап 9)
 
