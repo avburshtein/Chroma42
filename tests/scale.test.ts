@@ -112,6 +112,42 @@ describe('Специальные шкалы', () => {
     });
 });
 
+describe('Шкала, якоренная на сиде', () => {
+    it('тон 50 совпадает с сидом', () => {
+        for (const seed of ['#053820', '#00c788', '#ccff00', '#0b6e4f', '#b12a33']) {
+            const scale = generateScale(seed, { anchorSeed: true });
+            expect(scale[50].toLowerCase()).toBe(seed.toLowerCase());
+        }
+    });
+
+    it('без якоря тон 50 НЕ совпадает с сидом', () => {
+        // Обычная шкала подгоняет светлоту под тон — сид «размывается».
+        const scale = generateScale('#00c788');
+        expect(scale[50].toLowerCase()).not.toBe('#00c788');
+    });
+
+    it('светлота тона 50 равна светлоте сида', () => {
+        const seed = '#00c788';
+        const seedL = rgbToOklch(parseColor(seed)!).l;
+        const scale = generateScale(seed, { anchorSeed: true });
+        expect(rgbToOklch(parseColor(scale[50])!).l).toBeCloseTo(seedL, 2);
+    });
+
+    it('шкала остаётся монотонной по светлоте', () => {
+        for (const seed of ['#053820', '#00c788', '#ccff00']) {
+            const scale = generateScale(seed, { anchorSeed: true });
+            expect(isMonotonic(scale)).toBe(true);
+        }
+    });
+
+    it('насыщенность тона 50 не ниже, чем у обычной шкалы', () => {
+        const seed = '#00c788';
+        const anchored = rgbToOklch(parseColor(generateScale(seed, { anchorSeed: true })[50])!).c;
+        const plain = rgbToOklch(parseColor(generateScale(seed)[50])!).c;
+        expect(anchored).toBeGreaterThanOrEqual(plain);
+    });
+});
+
 describe('Обратимость конвертации', () => {
     it('HEX -> OKLCH -> HEX возвращает исходный цвет', () => {
         for (const hex of ['#00543b', '#ffffff', '#000000', '#b12a33', '#c084fc']) {

@@ -20,6 +20,9 @@ import {
 } from '../src/engine';
 import { buildAuditReport, buildPassport, checkPair, METHODOLOGY_VERSION } from '../src/engine/audit/audit';
 import { solvePair, toneSearchOrder } from '../src/engine/solver/solver';
+import { buildThemeBundle } from '../src/lib/theme-pipeline';
+import { flattenModes } from '../src/engine/export/tailwind';
+import { generateHarmonySeeds } from '../src/engine/seeds/schemes';
 
 const NEUTRAL_SEED = STATUS_SEED_ANCHORS.info;
 
@@ -275,6 +278,22 @@ describe('Полный цикл: сид -> шкалы -> аудит -> пасп�
     it('все статусные шкалы генерируются из сидов', () => {
         for (const seed of Object.values(STATUS_SEED_ANCHORS)) {
             expect(generateStatusScale(seed)[50]).toMatch(/^#[0-9a-f]{6}$/);
+        }
+    });
+
+    it('primary в собранной теме совпадает с выбранным сидом', () => {
+        // Инвариант платформы: пользователь выбирает цвет — платформа
+        // рисует именно его (никакого «размывания» до светлоты 0.5).
+        for (const seed of ['#053820', '#00c788', '#ccff00', '#0b6e4f', '#b12a33']) {
+            const { theme } = buildThemeBundle(
+                'test',
+                generateHarmonySeeds(seed, 'triad'),
+                'standard-aa',
+            );
+            const light = flattenModes(theme)['light-normal'];
+            expect(light.primary.toLowerCase()).toBe(seed.toLowerCase());
+            // Аудит при этом остаётся чистым.
+            expect(theme.audit.summary.failed).toBe(0);
         }
     });
 });

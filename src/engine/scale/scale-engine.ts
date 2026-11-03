@@ -55,6 +55,20 @@ export type ScaleOptions = {
      * По умолчанию 0.08.
      */
     readonly chromaFactor?: number;
+    /**
+     * Якорь шкалы на самом сиде.
+     *
+     * По умолчанию (false) светлота тона = тон/100 — шкала «нейтральная»:
+     * тон 50 всегда имеет светлоту 0.5, и выбранный пользователем цвет
+     * «размывается» до неё (gamut-mapping срезает насыщенность, цвет
+     * становится дымным).
+     *
+     * При anchorSeed=true шкала строится ВОКРУГ сида: тон 50 — это сам
+     * сид (его светлота, насыщенность и оттенок), а остальные тоны
+     * расходятся от него вверх/вниз. Первичный цвет тогда совпадает с
+     * выбранным пользователем, а не похож на него.
+     */
+    readonly anchorSeed?: boolean;
 };
 
 // ---------------------------------------------------------------------------
@@ -83,6 +97,26 @@ export function lightnessCurve(tone: number): number {
     if (tone <= 0) return 0;
     if (tone >= 100) return 1;
     return tone / 100;
+}
+
+/**
+ * Светлота для тона 0..100 в шкале, ЯКОРЕННОЙ на сид.
+ *
+ * Тон 50 — это сам сид (его светлота), остальные тоны расходятся от него:
+ * вниз — к чёрному, вверх — к белому. Так первичный токен совпадает с
+ * выбранным пользователем цветом, а не подгоняется под светлоту 0.5.
+ *
+ * Монотонность сохраняется: L(0)=0, L(50)=seedL, L(100)=1.
+ *
+ * @param tone  тон 0..100
+ * @param seedL светлота сида в OKLCH, [0..1]
+ */
+export function anchoredLightness(tone: number, seedL: number): number {
+    if (tone <= 0) return 0;
+    if (tone >= 100) return 1;
+    if (tone === 50) return seedL;
+    if (tone < 50) return (seedL * tone) / 50;
+    return seedL + ((1 - seedL) * (tone - 50)) / 50;
 }
 
 // ---------------------------------------------------------------------------
@@ -236,6 +270,7 @@ function buildScale(
         tones = DEFAULT_TONES,
         chromaPeak = 0.85,
         hueShift: hueShiftAmount = 6,
+        anchorSeed = false,
     } = options;
 
     const scale: ToneScale = {};
@@ -251,9 +286,13 @@ function buildScale(
             continue;
         }
 
+        const lightness = anchorSeed
+            ? anchoredLightness(tone, seed.l)
+            : lightnessCurve(tone);
+
         scale[tone] = formatHex({
             ...oklchToRgbSafe({
-                l: lightnessCurve(tone),
+                l: lightness,
                 c: chromaCurve(tone, maxChroma, chromaPeak),
                 h: hueShift(seed.h, tone, hueShiftAmount),
             }),

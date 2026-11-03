@@ -51,7 +51,11 @@ export function defaultSeeds(): Seeds {
 /** Строит примитивные шкалы из сидов. */
 export function buildPrimitives(seeds: Seeds): Primitives {
     return {
-        primary: generateScale(seeds.primary),
+        // Primary-шкала ЯКОРЕНА на сиде: тон 50 = сам выбранный цвет.
+        // Иначе первичный токен «размывается» до светлоты 0.5 и теряет
+        // насыщенность (пользователь выбирает цвет — а платформа рисует
+        // другой). Остальные шкалы остаются нейтральными по светлоте.
+        primary: generateScale(seeds.primary, { anchorSeed: true }),
         secondary: generateScale(seeds.secondary),
         tertiary: generateScale(seeds.tertiary),
         neutral: generateNeutralScale(seeds.neutral),

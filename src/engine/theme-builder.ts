@@ -143,8 +143,11 @@ export const IDEAL_TONES_DARK: Readonly<Record<string, number>> = {
     placeholder: 60,
     disabled: 40,
 
-    // Акценты — светлее для темного фона
-    primary: 50,
+    // Акценты — светлее для темного фона.
+    // Primary берётся с тона 70, а не 50: primary-шкала ЯКОРЕНА на сиде,
+    // и тон 50 — это сам сид. Для тёмной темы нужен более светлый тон
+    // той же шкалы (иначе тёмный сид не виден на тёмном фоне).
+    primary: 70,
     'on-primary': 5,
     'primary-container': 20,
     'on-primary-container': 99,
@@ -225,6 +228,14 @@ function toneOfRef(value: string): number | undefined {
     const match = /^\{([A-Za-z-]+)\.(\d+)\}$/.exec(value);
     return match ? Number(match[2]) : undefined;
 }
+
+/**
+ * Токены, цвет которых выбрал пользователь (или он производный от сида).
+ *
+ * Их тон нельзя двигать ради контраста — солвер обязан подстроить
+ * текст, а не перекрасить брендовый акцент.
+ */
+const BRAND_BACKGROUNDS = new Set(['primary', 'secondary', 'tertiary']);
 
 /**
  * Подбирает тона для пары, учитывая отдельные идеалы для переднего плана
@@ -413,6 +424,16 @@ export function buildModes(
             const fixedFgTone = existingFg ? toneOfRef(existingFg.value) : undefined;
             const fixedBgTone = existingBg ? toneOfRef(existingBg.value) : undefined;
 
+            // Брендовый цвет (primary/secondary/tertiary) — это выбор
+            // пользователя, его нельзя сдвигать ради контраста: иначе
+            // солвер «спасает» текст, двигая сам цвет, и пользователь
+            // получает не тот оттенок, который выбрал. Вместо этого
+            // подстраивается текст (у текста больше свободы).
+            const brandBgTone = BRAND_BACKGROUNDS.has(backgroundToken)
+                ? idealBg
+                : undefined;
+            const lockedBgTone = fixedBgTone ?? brandBgTone;
+
             const result = solveSemanticPair(
                 pair,
                 policy,
@@ -422,7 +443,7 @@ export function buildModes(
                 idealFg,
                 idealBg,
                 backdrop,
-                fixedBgTone,
+                lockedBgTone,
                 fixedFgTone,
             );
 
