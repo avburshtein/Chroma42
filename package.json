@@ -1,59 +1,59 @@
 {
-    "name": "chroma42",
-    "version": "0.2.0",
-    "private": true,
-    "description": "Инженерный генератор цветовых токенов с проверяемой методологией доступности",
-    "type": "module",
-    "engines": {
-        "node": ">=20"
-    },
-    "main": "./dist/index.js",
-    "module": "./dist/index.js",
-    "types": "./dist/index.d.ts",
-    "exports": {
-        ".": {
-            "types": "./dist/index.d.ts",
-            "import": "./dist/index.js",
-            "default": "./dist/index.js"
-        }
-    },
-    "files": [
-        "dist",
-        "README.md",
-        "LICENSE"
-    ],
-    "sideEffects": false,
-    "publishConfig": {
-        "access": "public"
-    },
-    "scripts": {
-        "dev": "next dev",
-        "build": "next build",
-        "build:lib": "tsup",
-        "prepack": "npm run build:lib",
-        "start": "next start",
-        "typecheck": "tsc --noEmit",
-        "test": "vitest run",
-        "test:watch": "vitest",
-        "gen:theme": "tsx scripts/gen-theme-css.ts"
-    },
-    "dependencies": {},
-    "devDependencies": {
-        "@tailwindcss/postcss": "^4",
-        "@types/node": "26.6.6",
-        "@types/react": "^19.1.5",
-        "@types/react-dom": "^19.1.5",
-        "class-variance-authority": "^0.7.1",
-        "clsx": "^2.1.1",
-        "lz-string": "^1.5.0",
-        "next": "^16.1.5",
-        "react": "^19.1.5",
-        "react-dom": "^19.1.5",
-        "tailwind-merge": "^3.6.0",
-        "tailwindcss": "^4",
-        "tsup": "^9.0.0",
-        "tsx": "^4.23.5",
-        "typescript": "~5.8.2",
-        "vitest": "^3.0.0"
+  "name": "chroma42",
+  "version": "0.2.1",
+  "private": true,
+  "description": "Инженерный генератор цветовых токенов с проверяемой методологией доступности",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "build:lib": "tsup",
+    "prepack": "npm run build:lib",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "gen:theme": "tsx scripts/gen-theme-css.ts"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "26.6.6",
+    "@types/react": "^19.1.5",
+    "@types/react-dom": "^19.1.5",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lz-string": "^1.5.0",
+    "next": "^16.1.5",
+    "react": "^19.1.5",
+    "react-dom": "^19.1.5",
+    "tailwind-merge": "^3.6.0",
+    "tailwindcss": "^4",
+    "tsup": "^9.0.0",
+    "tsx": "^4.23.5",
+    "typescript": "~5.8.2",
+    "vitest": "^3.0.0"
+  }
 }

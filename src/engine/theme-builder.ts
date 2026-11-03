@@ -25,6 +25,38 @@ import type { ToneScale } from './scale/scale-engine';
 import type { Seeds, Primitives, Modes, SemanticValue, Semantics } from '../model/theme';
 import type { SolveResult } from './solver/solver';
 
+/**
+ * Цветные тональные ряды, которые могут обслуживать семантические токены.
+ */
+const SCALE_NAMES = [
+    'primary',
+    'secondary',
+    'tertiary',
+    'success',
+    'warning',
+    'error',
+    'info',
+] as const;
+
+type ScaleName = (typeof SCALE_NAMES)[number] | 'neutral';
+
+/**
+ * Определяет тональный ряд для семантического токена.
+ *
+ * Раньше шкала искалась через `endsWith('primary')` и т.п., но у токенов
+ * вида `primary-container` имя заканчивается на `-container` — проверка
+ * не срабатывала, и ВСЕ контейнерные токены получали НЕЙТРАЛЬНУЮ шкалу
+ * вместо собственной цветной. Из-за этого `primary-container` был серым
+ * (#dcdfdd) вместо тонированного (#c3e8d6) — контейнеры теряли акцент.
+ */
+function scaleNameFor(token: string): ScaleName {
+    const base = token.startsWith('on-') ? token.slice(3) : token;
+    const name = base.replace(/-container$/, '');
+    return (SCALE_NAMES as readonly string[]).includes(name)
+        ? (name as ScaleName)
+        : 'neutral';
+}
+
 /** Стартовые тона для светлых схем (light-режимы). */
 export const IDEAL_TONES_LIGHT: Readonly<Record<string, number>> = {
     // Поверхности
@@ -365,44 +397,14 @@ export function buildModes(
                         : undefined;
             }
 
-            // Выбираем примитив для foreground и background
-            // Для on-токенов примитив — это тот же цвет без префикса on-
-            const fgPrimitive = foregroundToken.startsWith('on-')
-                ? foregroundToken.slice(3)
-                : foregroundToken;
-            const bgPrimitive = backgroundToken.startsWith('on-')
-                ? backgroundToken.slice(3)
-                : backgroundToken;
+            // Выбираем примитив для foreground и background.
+            // Учитываем суффикс `-container`: `primary-container` должен
+            // брать шкалу `primary`, а не `neutral`.
+            const fgScaleName = scaleNameFor(foregroundToken);
+            const bgScaleName = scaleNameFor(backgroundToken);
 
-            // Если это neutral, используем neutral шкалу, иначе — цветной примитив
-            const fgScaleName =
-                fgPrimitive === 'neutral'
-                    ? 'neutral'
-                    : fgPrimitive.endsWith('primary') ||
-                      fgPrimitive.endsWith('secondary') ||
-                      fgPrimitive.endsWith('tertiary') ||
-                      fgPrimitive.endsWith('success') ||
-                      fgPrimitive.endsWith('warning') ||
-                      fgPrimitive.endsWith('error') ||
-                      fgPrimitive.endsWith('info')
-                    ? fgPrimitive
-                    : 'neutral';
-
-            const bgScaleName =
-                bgPrimitive === 'neutral'
-                    ? 'neutral'
-                    : bgPrimitive.endsWith('primary') ||
-                      bgPrimitive.endsWith('secondary') ||
-                      bgPrimitive.endsWith('tertiary') ||
-                      bgPrimitive.endsWith('success') ||
-                      bgPrimitive.endsWith('warning') ||
-                      bgPrimitive.endsWith('error') ||
-                      bgPrimitive.endsWith('info')
-                    ? bgPrimitive
-                    : 'neutral';
-
-            const fgScale = primitives[fgScaleName as keyof Primitives] as ToneScale;
-            const bgScale = primitives[bgScaleName as keyof Primitives] as ToneScale;
+            const fgScale = primitives[fgScaleName] as ToneScale;
+            const bgScale = primitives[bgScaleName] as ToneScale;
 
             // Модель «первый писавший побеждает»: если fg или bg уже записаны
             // более ранней парой, фиксируем их тона и не перезаписываем.
