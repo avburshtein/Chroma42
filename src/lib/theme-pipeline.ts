@@ -48,8 +48,24 @@ export function defaultSeeds(): Seeds {
 // Сборка темы
 // ---------------------------------------------------------------------------
 
+/** Опции сборки темы. */
+export type BuildThemeOptions = {
+    /**
+     * Минимальная насыщенность нейтральной шкалы (0..0.2).
+     *
+     * 0 (по умолчанию) — «строго серый холст»: насыщенность нейтрали
+     * равна 8% насыщенности сида, то есть визуально серый.
+     * 0.02 и выше — холст несёт оттенок бренда даже для приглушённых сидов.
+     */
+    readonly neutralMinChroma?: number;
+};
+
 /** Строит примитивные шкалы из сидов. */
-export function buildPrimitives(seeds: Seeds): Primitives {
+export function buildPrimitives(
+    seeds: Seeds,
+    options: BuildThemeOptions = {},
+): Primitives {
+    const { neutralMinChroma = 0 } = options;
     return {
         // Primary-шкала ЯКОРЕНА на сиде: тон 50 = сам выбранный цвет.
         // Иначе первичный токен «размывается» до светлоты 0.5 и теряет
@@ -58,7 +74,9 @@ export function buildPrimitives(seeds: Seeds): Primitives {
         primary: generateScale(seeds.primary, { anchorSeed: true }),
         secondary: generateScale(seeds.secondary),
         tertiary: generateScale(seeds.tertiary),
-        neutral: generateNeutralScale(seeds.neutral),
+        neutral: generateNeutralScale(seeds.neutral, {
+            minChroma: neutralMinChroma,
+        }),
         success: generateStatusScale(seeds.success),
         warning: generateStatusScale(seeds.warning),
         error: generateStatusScale(seeds.error),
@@ -86,8 +104,9 @@ export function buildThemeBundle(
     name: string,
     seeds: Seeds,
     policyId: PolicyId,
+    options: BuildThemeOptions = {},
 ): ThemeBundle {
-    const primitives = buildPrimitives(seeds);
+    const primitives = buildPrimitives(seeds, options);
     const policy = getPolicy(policyId);
     const { modes, warnings, resultsByMode } = buildModes(
         seeds,

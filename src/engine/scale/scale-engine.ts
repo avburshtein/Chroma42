@@ -229,9 +229,21 @@ export function generateScale(seed: string, options: ScaleOptions = {}): ToneSca
  */
 export function generateNeutralScale(
     seed: string,
-    options: ScaleOptions = {},
+    options: ScaleOptions & { readonly minChroma?: number } = {},
 ): ToneScale {
-    return generateScale(seed, { chromaFactor: 0.08, ...options });
+    const { minChroma = 0, ...rest } = options;
+    if (minChroma <= 0) {
+        return generateScale(seed, { chromaFactor: 0.08, ...rest });
+    }
+    // Минимальная насыщенность: холст несёт оттенок бренда, даже если сам
+    // сид почти ахроматичный. По умолчанию minChroma = 0 — поведение
+    // «строго серый холст» (как в Material 3).
+    const parsed = parseColor(seed);
+    if (!parsed) {
+        throw new Error(`Chroma42: не удалось разобрать сид-цвет "${seed}".`);
+    }
+    const seedOklch = rgbToOklch(parsed);
+    return buildScale(seedOklch, Math.max(seedOklch.c * 0.08, minChroma), rest);
 }
 
 /**

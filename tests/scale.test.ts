@@ -17,6 +17,8 @@ import {
 } from '../src/engine/scale/scale-engine';
 import { parseColor, formatHex } from '../src/engine/color/parse';
 import { inSrgbGamut, oklabToLinearRgb, oklchToOklab, oklchToRgb, rgbToOklch } from '../src/engine/color/convert';
+import { buildThemeBundle } from '../src/lib/theme-pipeline';
+import { generateHarmonySeeds } from '../src/engine/seeds/schemes';
 
 const SEED = '#00543b';
 
@@ -145,6 +147,47 @@ describe('Шкала, якоренная на сиде', () => {
         const anchored = rgbToOklch(parseColor(generateScale(seed, { anchorSeed: true })[50])!).c;
         const plain = rgbToOklch(parseColor(generateScale(seed)[50])!).c;
         expect(anchored).toBeGreaterThanOrEqual(plain);
+    });
+});
+
+describe('Минимальная насыщенность нейтрали', () => {
+    it('по умолчанию холст строго серый (minChroma = 0)', () => {
+        const plain = generateNeutralScale('#1d3d6c');
+        const scale = generateNeutralScale('#1d3d6c', { minChroma: 0.04 });
+        // Без минимума тон 90 — почти ахроматичный.
+        const plainC = rgbToOklch(parseColor(plain[90])!).c;
+        expect(plainC).toBeLessThan(0.006);
+        // С минимумом — ощутимо цветнее.
+        const tintedC = rgbToOklch(parseColor(scale[90])!).c;
+        expect(tintedC).toBeGreaterThan(plainC);
+    });
+
+    it('минимум работает и для приглушённых сидов', () => {
+        // Сид с почти нулевой хромой: без минимума холст серый.
+        const gray = generateNeutralScale('#888888');
+        const tinted = generateNeutralScale('#888888', { minChroma: 0.04 });
+        const grayC = rgbToOklch(parseColor(gray[90])!).c;
+        const tintedC = rgbToOklch(parseColor(tinted[90])!).c;
+        expect(tintedC).toBeGreaterThan(grayC);
+    });
+
+    it('аудит и критерии доступности не меняются', () => {
+        // Поднятие насыщенности нейтрали не влияет на контрастные пары:
+        // светлота поверхностей почти та же, а солвер подбирает ТОН, а не цвет.
+        const seeds = generateHarmonySeeds('#1d3d6c', 'triad');
+        const plain = buildThemeBundle('t', seeds, 'standard-aa');
+        const tinted = buildThemeBundle('t', seeds, 'standard-aa', {
+            neutralMinChroma: 0.04,
+        });
+        expect(tinted.theme.audit.summary.totalPairsChecked).toBe(
+            plain.theme.audit.summary.totalPairsChecked,
+        );
+        expect(tinted.theme.audit.summary.passed).toBe(
+            plain.theme.audit.summary.passed,
+        );
+        expect(tinted.theme.audit.summary.failed).toBe(
+            plain.theme.audit.summary.failed,
+        );
     });
 });
 
